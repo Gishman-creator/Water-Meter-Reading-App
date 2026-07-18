@@ -43,35 +43,6 @@ st.markdown(
         background-color: #1f1f24 !important;
         border-color: #3f3f46 !important;
     }
-    
-    /* Top Right Image Overlay Style for Close Window Icon */
-    .image-container {
-        position: relative;
-        display: inline-block;
-        width: 100%;
-    }
-    .close-overlay-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: rgba(18, 18, 20, 0.8);
-        color: #f3f4f6;
-        border: 1px solid #222226;
-        border-radius: 50%;
-        width: 32px;
-        height: 32px;
-        text-align: center;
-        line-height: 30px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.2s;
-        z-index: 99;
-    }
-    .close-overlay-btn:hover {
-        background-color: #1f1f24;
-        border-color: #3f3f46;
-    }
-
     input {
         background-color: #1a1a1e !important;
         border: 1px solid #222226 !important;
@@ -87,11 +58,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Header Section with Inline Alignment Setup
-header_col1, header_col2 = st.columns([3, 1])
-with header_col1:
-    st.markdown("<h1 style='color:#ffffff; font-weight:700; letter-spacing:-0.04em; margin-bottom:0px;'>Vera Metric</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#9ca3af; margin-bottom:3.5rem;'>Optical character recognition for utility meters</p>", unsafe_allow_html=True)
+# Header Section
+st.markdown("<h1 style='color:#ffffff; font-weight:700; letter-spacing:-0.04em;'>Vera Metric</h1>", unsafe_allow_html=True)
+st.markdown("<p style='color:#9ca3af; margin-bottom:3.5rem;'>Optical character recognition for utility meters</p>", unsafe_allow_html=True)
 
 # Define Main Structural Columns
 col1, col2 = st.columns(2, gap="large")
@@ -102,8 +71,6 @@ with col1:
     # Track the upload/clear state using session storage keys
     if "uploaded_image" not in st.session_state:
         st.session_state.uploaded_image = None
-    if "run_analysis" not in st.session_state:
-        st.session_state.run_analysis = False
 
     # Condition 1: Upload input field is shown when no file exists
     if st.session_state.uploaded_image is None:
@@ -112,20 +79,13 @@ with col1:
             st.session_state.uploaded_image = Image.open(uploaded_file)
             st.rerun()
 
-    # Condition 2: File is uploaded. Hide input field, place layout elements strictly at top
+    # Condition 2: File is uploaded. Hide input field, place layout buttons strictly at top
     if st.session_state.uploaded_image is not None:
-        # Place Run Analysis button inline up in the right side of the header column
-        with header_col2:
-            if st.button("Run Analysis", type="primary"):
-                st.session_state.run_analysis = True
-                st.rerun()
+        analyse_btn = st.button("Run Analysis", type="primary")
         
-        # Absolute positioned CSS Close icon trigger matching top-right structural framework requirement
-        # A tiny callback element handles state cleanup on user interaction
-        st.markdown('<div class="image-container">', unsafe_allow_html=True)
-        if st.button("❌ Close Image", key="overlay_close_trigger"):
+        # Clear/Close button directly under action to trigger upload field reset
+        if st.button("❌ Close & Remove Image"):
             st.session_state.uploaded_image = None
-            st.session_state.run_analysis = False
             st.rerun()
             
         st.image(st.session_state.uploaded_image, caption="Source alignment geometry", use_container_width=True)
@@ -134,7 +94,7 @@ with col2:
     st.markdown("<h2 style='font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; color:#4b5563;'>Processed Output</h2>", unsafe_allow_html=True)
     
     # Process when state image is loaded and trigger analysis click is parsed
-    if st.session_state.uploaded_image is not None and st.session_state.run_analysis:
+    if st.session_state.uploaded_image is not None and 'analyse_btn' in locals() and analyse_btn:
         with st.spinner("Processing structural frames..."):
             results = model.predict(
                 source=st.session_state.uploaded_image,
