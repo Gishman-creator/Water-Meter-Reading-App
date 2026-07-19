@@ -1,7 +1,7 @@
 import streamlit as st
 from ultralytics import YOLO
 from PIL import Image
-import numpy as np
+import os
 
 # Load your custom trained model weights
 model = YOLO("best.pt")
@@ -72,21 +72,40 @@ with col1:
     if "uploaded_image" not in st.session_state:
         st.session_state.uploaded_image = None
 
-    # Condition 1: Upload input field is shown when no file exists
+    # Condition 1: Configuration interface shown when no image framework is loaded
     if st.session_state.uploaded_image is None:
+        # Define available sample options
+        sample_options = ["-- Select a Sample Image --", "water_meter_000853.jpg", "water_meter_000746.jpg", "water_meter_000597.jpg"]
+        selected_sample = st.selectbox("Or choose a sample configuration:", sample_options, index=0)
+        
+        if selected_sample != "-- Select a Sample Image --":
+            if os.path.exists(selected_sample):
+                st.session_state.uploaded_image = Image.open(selected_sample)
+                st.rerun()
+            else:
+                st.error(f"Sample asset '{selected_sample}' not found in root directory.")
+
         uploaded_file = st.file_uploader("Upload snapshot", type=["jpg", "jpeg", "png", "webp", "bmp"], label_visibility="collapsed")
         if uploaded_file:
-            st.session_state.uploaded_image = Image.open(uploaded_file)
-            st.rerun()
+            # Enforce 2MB size barrier constraint (2 * 1024 * 1024 bytes)
+            if uploaded_file.size > 2 * 1024 * 1024:
+                st.error("File size exceeds the 2MB limit. Please upload a compressed or smaller structural layout file.")
+            else:
+                st.session_state.uploaded_image = Image.open(uploaded_file)
+                st.rerun()
 
-    # Condition 2: File is uploaded. Hide input field, place layout buttons strictly at top
+    # Condition 2: File state active. Align modern utility buttons side-by-side
     if st.session_state.uploaded_image is not None:
-        analyse_btn = st.button("Run Analysis", type="primary")
+        btn_col1, btn_col2 = st.columns(2)
         
-        # Clear/Close button directly under action to trigger upload field reset
-        if st.button("❌ Close & Remove Image"):
-            st.session_state.uploaded_image = None
-            st.rerun()
+        with btn_col1:
+            # Inline clear action mapping rewritten as requested
+            if st.button("🔄 Upload Another Image"):
+                st.session_state.uploaded_image = None
+                st.rerun()
+                
+        with btn_col2:
+            analyse_btn = st.button("Run Analysis", type="primary")
             
         st.image(st.session_state.uploaded_image, caption="Source alignment geometry", use_container_width=True)
 
