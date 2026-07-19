@@ -17,6 +17,10 @@ def get_image_base64(img_path):
         pass
     return ""
 
+img_853 = get_image_base64("water_meter_000853.jpg")
+img_746 = get_image_base64("water_meter_000746.jpg")
+img_597 = get_image_base64("water_meter_000597.jpg")
+
 # Load your custom trained model weights
 model = YOLO("best.pt")
 
@@ -28,6 +32,8 @@ if "uploaded_image" not in st.session_state:
     st.session_state.uploaded_image = None
 if "run_analysis" not in st.session_state:
     st.session_state.run_analysis = False
+if "analysis_results" not in st.session_state:
+    st.session_state.analysis_results = None
 
 # Handle sample selections via query parameters
 if "sample" in st.query_params:
@@ -35,6 +41,7 @@ if "sample" in st.query_params:
     if os.path.exists(sample_name):
         st.session_state.uploaded_image = Image.open(sample_name)
         st.session_state.run_analysis = False
+        st.session_state.analysis_results = None
     st.query_params.clear()
     st.rerun()
 
@@ -97,69 +104,48 @@ st.markdown(
         margin-bottom: 1rem !important;
     }
     
-    /* Sample Grid styling */
-    .sample-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        gap: 0.75rem;
-        padding: 0.15rem 0 1.25rem 0 !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    .sample-grid a, .sample-grid a:hover, .sample-grid a:visited, .sample-grid a:active {
-        background-color: transparent !important;
-        text-decoration: none !important;
-        color: inherit !important;
-        display: block !important;
-    }
-
-    .sample-card {
+    /* Sample Grid styling via Streamlit columns and customized buttons */
+    div[class*="st-key-card-"] button {
         background-color: #161619 !important;
-        border: 1px solid #222226;
-        border-radius: 6px;
-        overflow: hidden;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-align: center;
-        box-sizing: border-box !important;
-    }
-
-    .sample-card:hover {
-        border-color: #3f3f46;
-        transform: translateY(-2px);
-    }
-
-    .sample-thumb-placeholder {
-        width: 100% !important;
-        aspect-ratio: 4 / 3 !important;
-        height: auto !important;
-        background-color: #252529 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center;
-        font-size: 0.7rem;
-        color: #71717a;
-        border-bottom: 1px solid #222226;
+        border: 1px solid #222226 !important;
+        border-radius: 6px !important;
         overflow: hidden !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        text-align: center !important;
         box-sizing: border-box !important;
-    }
-
-    .sample-thumb-placeholder img {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 0 !important;
+        height: auto !important;
         width: 100% !important;
-        height: 100% !important;
-        object-fit: contain !important;
-        display: block !important;
     }
 
-    .sample-card span {
-        display: block;
-        padding: 0.5rem 0.4rem;
-        font-size: 0.75rem;
+    div[class*="st-key-card-"] button:hover {
+        border-color: #3f3f46 !important;
+        transform: translateY(-2px) !important;
+        background-color: #161619 !important;
+    }
+
+    div[class*="st-key-card-"] button div[data-testid="stMarkdownContainer"] {
+        padding: 0.5rem 0.4rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        display: block !important;
+        margin: 0 !important;
+    }
+
+    div[class*="st-key-card-"] button p {
         color: #58a6ff !important;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 0.75rem !important;
+        font-weight: 500 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: block !important;
     }
 
     /* File Uploader styling wrapper */
@@ -261,6 +247,15 @@ st.markdown(
         background-color: #e63636 !important;
         border-color: transparent !important;
     }
+    .stButton > button[data-testid*="primary"]:disabled {
+        background-color: #552222 !important;
+        color: #9ca3af !important;
+        cursor: not-allowed !important;
+        opacity: 0.6 !important;
+    }
+    .stButton > button:disabled {
+        cursor: not-allowed !important;
+    }
     
     /* Value Sequence Output Readout Box */
     div[data-testid="stTextInput"] {
@@ -321,6 +316,46 @@ st.markdown(
         background-color: #121214 !important;
         font-size: 0.95rem !important;
     }
+    
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Inject base64 sample thumbnails as button backgrounds
+st.markdown(
+    f"""
+    <style>
+    div[class*="st-key-card-853"] button::before {{
+        content: "" !important;
+        width: 100% !important;
+        aspect-ratio: 4 / 3 !important;
+        background-image: url("{img_853}") !important;
+        background-size: cover !important;
+        background-position: center !important;
+        border-bottom: 1px solid #222226 !important;
+        display: block !important;
+    }}
+    div[class*="st-key-card-746"] button::before {{
+        content: "" !important;
+        width: 100% !important;
+        aspect-ratio: 4 / 3 !important;
+        background-image: url("{img_746}") !important;
+        background-size: cover !important;
+        background-position: center !important;
+        border-bottom: 1px solid #222226 !important;
+        display: block !important;
+    }}
+    div[class*="st-key-card-597"] button::before {{
+        content: "" !important;
+        width: 100% !important;
+        aspect-ratio: 4 / 3 !important;
+        background-image: url("{img_597}") !important;
+        background-size: cover !important;
+        background-position: center !important;
+        border-bottom: 1px solid #222226 !important;
+        display: block !important;
+    }}
     </style>
     """,
     unsafe_allow_html=True
@@ -341,41 +376,28 @@ with col1:
         if st.session_state.uploaded_image is None:
             # Collapsible container layout matching mockup
             with st.expander("Choose a sample configuration", expanded=False):
-                img_853 = get_image_base64("water_meter_000853.jpg")
-                img_746 = get_image_base64("water_meter_000746.jpg")
-                img_597 = get_image_base64("water_meter_000597.jpg")
-                
-                st.markdown(
-                    f"""
-                    <div class="sample-grid">
-                        <a href="?sample=water_meter_000853.jpg" target="_self" style="text-decoration: none; color: inherit;">
-                            <div class="sample-card">
-                                <div class="sample-thumb-placeholder">
-                                    <img src="{img_853}" style="width: 100%; height: 100%; object-fit: cover;">
-                                </div>
-                                <span>meter_000853.jpg</span>
-                            </div>
-                        </a>
-                        <a href="?sample=water_meter_000746.jpg" target="_self" style="text-decoration: none; color: inherit;">
-                            <div class="sample-card">
-                                <div class="sample-thumb-placeholder">
-                                    <img src="{img_746}" style="width: 100%; height: 100%; object-fit: cover;">
-                                </div>
-                                <span>meter_000746.jpg</span>
-                            </div>
-                        </a>
-                        <a href="?sample=water_meter_000597.jpg" target="_self" style="text-decoration: none; color: inherit;">
-                            <div class="sample-card">
-                                <div class="sample-thumb-placeholder">
-                                    <img src="{img_597}" style="width: 100%; height: 100%; object-fit: cover;">
-                                </div>
-                                <span>meter_000597.jpg</span>
-                            </div>
-                        </a>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                col_a, col_b, col_c = st.columns(3)
+                with col_a:
+                    with st.container(key="card-853"):
+                        if st.button("meter_000853.jpg", key="btn_click_853", use_container_width=True):
+                            st.session_state.uploaded_image = Image.open("water_meter_000853.jpg")
+                            st.session_state.run_analysis = False
+                            st.session_state.analysis_results = None
+                            st.rerun()
+                with col_b:
+                    with st.container(key="card-746"):
+                        if st.button("meter_000746.jpg", key="btn_click_746", use_container_width=True):
+                            st.session_state.uploaded_image = Image.open("water_meter_000746.jpg")
+                            st.session_state.run_analysis = False
+                            st.session_state.analysis_results = None
+                            st.rerun()
+                with col_c:
+                    with st.container(key="card-597"):
+                        if st.button("meter_000597.jpg", key="btn_click_597", use_container_width=True):
+                            st.session_state.uploaded_image = Image.open("water_meter_000597.jpg")
+                            st.session_state.run_analysis = False
+                            st.session_state.analysis_results = None
+                            st.rerun()
 
             # Clean File Drop / Select Drag-area matching mockup style
             uploaded_file = st.file_uploader(
@@ -390,6 +412,7 @@ with col1:
                 else:
                     st.session_state.uploaded_image = Image.open(uploaded_file)
                     st.session_state.run_analysis = False
+                    st.session_state.analysis_results = None
                     st.rerun()
 
         # Condition 2: Active presentation image preview screen context
@@ -400,51 +423,74 @@ with col1:
                 if st.button("Upload Another Image", use_container_width=True):
                     st.session_state.uploaded_image = None
                     st.session_state.run_analysis = False
+                    st.session_state.analysis_results = None
                     st.rerun()
                     
             with btn_col2:
-                if st.button("Run Analysis", type="primary", use_container_width=True):
-                    st.session_state.run_analysis = True
-                    st.rerun()
+                if st.session_state.run_analysis:
+                    st.button("Analyzing...", type="primary", use_container_width=True, disabled=True)
+                else:
+                    if st.button("Run Analysis", type="primary", use_container_width=True):
+                        st.session_state.run_analysis = True
+                        st.rerun()
                 
             st.image(st.session_state.uploaded_image, caption="Source alignment geometry", use_container_width=True)
 
 with col2:
     st.markdown("<div class='section-title'>Processed Output</div>", unsafe_allow_html=True)
     
-    if st.session_state.uploaded_image is not None and st.session_state.run_analysis:
-        with st.container(key="processed-panel"):
-            with st.spinner("Processing structural frames..."):
-                results = model.predict(
-                    source=st.session_state.uploaded_image,
-                    conf=0.25,
-                    iou=0.60,
-                    agnostic_nms=True
-                )
-                result = results[0]
-                
-                boxes = result.boxes.data.tolist()
-                digit_detections = []
-                
-                for box in boxes:
-                    class_id = int(box[5])
-                    class_name = model.names[class_id]
+    if st.session_state.uploaded_image is not None:
+        if st.session_state.run_analysis:
+            with st.container(key="processed-panel"):
+                with st.spinner("Processing structural frames..."):
+                    results = model.predict(
+                        source=st.session_state.uploaded_image,
+                        conf=0.25,
+                        iou=0.60,
+                        agnostic_nms=True
+                    )
+                    result = results[0]
                     
-                    if class_name not in ["meter", "window"]:
-                        x_center = (box[0] + box[2]) / 2
-                        display_char = "u" if "unknown" in class_name else class_name
-                        digit_detections.append((x_center, display_char))
+                    boxes = result.boxes.data.tolist()
+                    digit_detections = []
+                    
+                    for box in boxes:
+                        class_id = int(box[5])
+                        class_name = model.names[class_id]
                         
-                digit_detections.sort(key=lambda x: x[0])
-                recognized_number = "".join([item[1] for item in digit_detections])
-                
-                if not recognized_number:
-                    recognized_number = "No digits recognized."
-                
-                st.text_input("Value Sequence Readout", value=recognized_number, disabled=True)
-                
-                mapped_image = result.plot(line_width=2)
-                st.image(mapped_image, caption="Output bounding alignment", use_container_width=True)
+                        if class_name not in ["meter", "window"]:
+                            x_center = (box[0] + box[2]) / 2
+                            display_char = "u" if "unknown" in class_name else class_name
+                            digit_detections.append((x_center, display_char))
+                            
+                    digit_detections.sort(key=lambda x: x[0])
+                    recognized_number = "".join([item[1] for item in digit_detections])
+                    
+                    if not recognized_number:
+                        recognized_number = "No digits recognized."
+                    
+                    mapped_image = result.plot(line_width=2)
+                    
+                    st.session_state.analysis_results = {
+                        "recognized_number": recognized_number,
+                        "mapped_image": mapped_image
+                    }
+                    st.session_state.run_analysis = False
+                    st.rerun()
+                    
+        elif st.session_state.analysis_results is not None:
+            with st.container(key="processed-panel"):
+                st.text_input("Value Sequence Readout", value=st.session_state.analysis_results["recognized_number"], disabled=True)
+                st.image(st.session_state.analysis_results["mapped_image"], caption="Output bounding alignment", use_container_width=True)
+        else:
+            st.markdown(
+                """
+                <div class="placeholder-text">
+                    Awaiting image upload and analysis loop.
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
     else:
         st.markdown(
             """
