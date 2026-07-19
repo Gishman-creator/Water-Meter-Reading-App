@@ -101,75 +101,80 @@ if st.session_state.uploaded_image is not None and st.session_state.run_analysis
     out_b64 = get_image_base64(mapped_image)
     output_preview_html = f'<img src="{out_b64}" style="max-height:248px; object-fit:contain;" />'
 
-# Absolute Layout markup string template with escaped braces for CSS/JS
+# Original HTML Layout string - completely untouched with simple unique replace tags
 html_template = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vera Metric</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap');
         
-        * {{
+        * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-        }}
+        }
 
-        html, body, [data-testid="stAppViewContainer"] {{
+        html, body, [data-testid="stAppViewContainer"] {
             font-family: 'Inter', sans-serif;
             background-color: #0b0b0c !important;
             color: #f3f4f6 !important;
-        }}
+            padding: 2rem;
+            min-height: 100vh;
+        }
 
-        h1, h2, h3, h4, h5, h6, label, p {{
+        h1, h2, h3, h4, h5, h6, label, p {
             font-family: 'Inter', sans-serif !important;
-        }}
+        }
 
-        h1 {{
+        h1 {
             color: #ffffff;
             font-weight: 700;
             letter-spacing: -0.04em;
             margin-bottom: 0.25rem;
-        }}
+        }
 
-        .subtitle {{
+        .subtitle {
             color: #9ca3af;
             margin-bottom: 3.5rem;
             font-size: 1rem;
-        }}
+        }
 
-        .section-title {{
+        .section-title {
             font-size: 0.8rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.12em;
             color: #4b5563;
             margin-bottom: 1rem;
-        }}
+        }
 
-        .container {{
+        .container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2.5rem;
             max-width: 1400px;
             margin: 0 auto;
-        }}
+        }
 
-        @media (max-width: 900px) {{
-            .container {{
+        @media (max-width: 900px) {
+            .container {
                 grid-template-columns: 1fr;
-            }}
-        }}
+            }
+        }
 
-        .panel {{
+        .panel {
             background-color: #121214;
             border: 1px solid #222226;
             border-radius: 6px;
             padding: 1.5rem;
             min-height: 300px;
-        }}
+        }
 
-        .collapsible-header {{
+        .collapsible-header {
             width: 100%;
             background-color: #1a1a1e;
             border: 1px solid #222226;
@@ -185,32 +190,32 @@ html_template = """
             cursor: pointer;
             user-select: none;
             margin-bottom: 0.5rem;
-        }}
+        }
 
-        .collapsible-header:hover {{
+        .collapsible-header:hover {
             background-color: #1f1f24;
             border-color: #3f3f46;
-        }}
+        }
 
-        .collapsible-content {{
+        .collapsible-content {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.25s ease-out, margin-bottom 0.25s ease-out;
-        }}
+        }
 
-        .collapsible-content.expanded {{
+        .collapsible-content.expanded {
             max-height: 200px;
             margin-bottom: 1.5rem;
-        }}
+        }
 
-        .sample-grid {{
+        .sample-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 0.75rem;
             padding-top: 0.5rem;
-        }}
+        }
 
-        .sample-card {{
+        .sample-card {
             background-color: #1a1a1e;
             border: 1px solid #222226;
             border-radius: 4px;
@@ -218,14 +223,14 @@ html_template = """
             cursor: pointer;
             transition: all 0.2s ease;
             text-align: center;
-        }}
+        }
 
-        .sample-card:hover {{
+        .sample-card:hover {
             border-color: #3f3f46;
             transform: translateY(-2px);
-        }}
+        }
 
-        .sample-thumb-placeholder {{
+        .sample-thumb-placeholder {
             width: 100%;
             height: 70px;
             background-color: #26262b;
@@ -235,9 +240,9 @@ html_template = """
             font-size: 0.7rem;
             color: #71717a;
             border-bottom: 1px solid #222226;
-        }}
+        }
 
-        .sample-card span {{
+        .sample-card span {
             display: block;
             padding: 0.4rem;
             font-size: 0.75rem;
@@ -245,9 +250,9 @@ html_template = """
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }}
+        }
 
-        .file-uploader {{
+        .file-uploader {
             border: 1px dashed #222226;
             border-radius: 6px;
             padding: 2.5rem 2rem;
@@ -255,25 +260,25 @@ html_template = """
             background-color: #161619;
             cursor: pointer;
             transition: border-color 0.2s;
-        }}
+        }
 
-        .file-uploader:hover {{
+        .file-uploader:hover {
             border-color: #3f3f46;
-        }}
+        }
 
-        .file-uploader p {{
+        .file-uploader p {
             font-size: 0.9rem;
             color: #9ca3af;
-        }}
+        }
 
-        .btn-row {{
+        .btn-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
             margin-bottom: 1.5rem;
-        }}
+        }
 
-        .html-btn {{
+        .html-btn {
             width: 100%;
             background-color: #121214;
             color: #f3f4f6;
@@ -290,44 +295,44 @@ html_template = """
             gap: 0.5rem;
             transition: all 0.2s ease;
             text-decoration: none;
-        }}
+        }
 
-        .html-btn:hover {{
+        .html-btn:hover {
             background-color: #1f1f24;
             border-color: #3f3f46;
-        }}
+        }
 
-        .html-btn.primary {{
+        .html-btn.primary {
             background-color: #ff4b4b;
             color: white;
             border: 1px solid transparent;
-        }}
+        }
 
-        .html-btn.primary:hover {{
+        .html-btn.primary:hover {
             background-color: #e63636;
-        }}
+        }
 
-        .icon-plus {{
+        .icon-plus {
             display: inline-block;
             width: 14px;
             height: 14px;
             background: linear-gradient(to right, currentColor 2px, transparent 2px) no-repeat 6px 0,
                         linear-gradient(to bottom, currentColor 2px, transparent 2px) no-repeat 0 6px;
             background-size: 2px 14px, 14px 2px;
-        }}
+        }
 
-        .readout-group {{
+        .readout-group {
             margin-bottom: 1.5rem;
-        }}
+        }
 
-        .readout-group label {{
+        .readout-group label {
             display: block;
             font-size: 0.85rem;
             color: #9ca3af;
             margin-bottom: 0.5rem;
-        }}
+        }
 
-        .custom-input {{
+        .custom-input {
             width: 100%;
             background-color: #1a1a1e;
             border: 1px solid #222226;
@@ -341,29 +346,29 @@ html_template = """
             border-radius: 6px;
             outline: none;
             opacity: 0.8;
-        }}
+        }
 
-        .image-container {{
+        .image-container {
             margin-top: 1rem;
             width: 100%;
-        }}
+        }
 
-        .image-container img {{
+        .image-container img {
             width: 100%;
             height: auto;
             border-radius: 4px;
             border: 1px solid #222226;
             display: block;
-        }}
+        }
 
-        .image-caption {{
+        .image-caption {
             font-size: 0.8rem;
             color: #9ca3af;
             margin-top: 0.5rem;
             text-align: left;
-        }}
+        }
 
-        .placeholder-text {{
+        .placeholder-text {
             color: #9ca3af;
             text-align: center;
             padding: 2rem;
@@ -373,7 +378,7 @@ html_template = """
             font-size: 0.95rem;
         }
         
-        div[data-testid="stFileUploader"] {{
+        div[data-testid="stFileUploader"] {
             display: none;
         }}
     </style>
@@ -388,7 +393,7 @@ html_template = """
             <div class="section-title">Source File</div>
             <div class="panel">
                 
-                <div id="upload-state" style="display: {upload_display};">
+                <div id="upload-state" style="display: __UPLOAD_DISPLAY__;">
                     <div class="collapsible-header" onclick="toggleGrid()">
                         <span>Choose a sample configuration</span>
                         <span id="arrow-icon">▼</span>
@@ -417,7 +422,7 @@ html_template = """
                     </div>
                 </div>
 
-                <div id="active-state" style="display: {active_display};">
+                <div id="active-state" style="display: __ACTIVE_DISPLAY__;">
                     <div class="btn-row">
                         <a href="?action=reset" target="_self" class="html-btn">
                             <i class="icon-plus"></i> Upload Another Image
@@ -426,9 +431,9 @@ html_template = """
                     </div>
                     <div class="image-container">
                         <div id="selected-preview-box" style="width:100%; display:flex; align-items:center; justify-content:center; background-color:#1a1a1e; border: 1px solid #222226; border-radius:4px;">
-                            {source_preview}
+                            __SOURCE_PREVIEW__
                         </div>
-                        <div class="image-caption">Source alignment geometry ({image_name})</div>
+                        <div class="image-caption">Source alignment geometry (__IMAGE_NAME__)</div>
                     </div>
                 </div>
 
@@ -438,19 +443,19 @@ html_template = """
         <div>
             <div class="section-title">Processed Output</div>
             
-            <div id="output-awaiting" class="placeholder-text" style="display: {awaiting_display};">
+            <div id="output-awaiting" class="placeholder-text" style="display: __AWAITING_DISPLAY__;">
                 Awaiting image upload and analysis loop.
             </div>
 
-            <div id="output-results" class="panel" style="display: {results_display};">
+            <div id="output-results" class="panel" style="display: __RESULTS_DISPLAY__;">
                 <div class="readout-group">
                     <label>Value Sequence Readout</label>
-                    <input type="text" class="custom-input" value="{recognized_number}" disabled />
+                    <input type="text" class="custom-input" value="__RECOGNIZED_NUMBER__" disabled />
                 </div>
                 
                 <div class="image-container">
                     <div style="width:100%; display:flex; align-items:center; justify-content:center; background-color:#1a1a1e; border: 1px solid #222226; border-radius:4px;">
-                        {output_preview}
+                        __OUTPUT_PREVIEW__
                     </div>
                     <div class="image-caption">Output bounding alignment</div>
                 </div>
@@ -459,33 +464,31 @@ html_template = """
     </div>
 
     <script>
-        function toggleGrid() {{
+        function toggleGrid() {
             const content = document.getElementById('grid-content');
             const arrow = document.getElementById('arrow-icon');
-            if (content.classList.contains('expanded')) {{
+            if (content.classList.contains('expanded')) {
                 content.classList.remove('expanded');
                 arrow.innerText = '▼';
-            }} else {{
+            } else {
                 content.classList.add('expanded');
                 arrow.innerText = '▲';
-            }}
-        }}
+            }
+        }
     </script>
 </body>
 </html>
 """
 
-# Inject layout smoothly
-st.markdown(
-    html_template.format(
-        upload_display="block" if st.session_state.uploaded_image is None else "none",
-        active_display="none" if st.session_state.uploaded_image is None else "block",
-        awaiting_display="none" if st.session_state.run_analysis else "block",
-        results_display="block" if st.session_state.run_analysis else "none",
-        source_preview=source_preview_html,
-        image_name=st.session_state.image_name,
-        recognized_number=recognized_number,
-        output_preview=output_preview_html
-    ),
-    unsafe_allow_html=True
-)
+# Replace tags safely without altering CSS code blocks
+rendered_html = html_template.replace("__UPLOAD_DISPLAY__", "block" if st.session_state.uploaded_image is None else "none") \
+                             .replace("__ACTIVE_DISPLAY__", "none" if st.session_state.uploaded_image is None else "block") \
+                             .replace("__AWAITING_DISPLAY__", "none" if st.session_state.run_analysis else "block") \
+                             .replace("__RESULTS_DISPLAY__", "block" if st.session_state.run_analysis else "none") \
+                             .replace("__SOURCE_PREVIEW__", source_preview_html) \
+                             .replace("__IMAGE_NAME__", st.session_state.image_name) \
+                             .replace("__RECOGNIZED_NUMBER__", recognized_number) \
+                             .replace("__OUTPUT_PREVIEW__", output_preview_html)
+
+# Inject finalized clean code output safely
+st.markdown(rendered_html, unsafe_allow_html=True)
